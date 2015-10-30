@@ -24,8 +24,10 @@ install_package = %w(mongodb-org-server mongodb-org-shell mongodb-org-tools)
 
 # Setup package version to install
 case node['platform_family']
-  when 'rhel', 'fedora'
+  when ('rhel' || 'fedora') && node['platform'] != 'amazon'
     package_version = "#{node['mongodb3']['version']}-1.el#{node.platform_version.to_i}" # ~FC019
+  when 'rhel' && node['platform'] == 'amazon'
+    package_version = "#{node['mongodb3']['version']}-1.amzn1" # MiK # FIX for amazon
   when 'debian'
     package_version = node['mongodb3']['version']
 end
@@ -62,7 +64,7 @@ template node['mongodb3']['mongod']['config_file'] do
   source 'mongodb.conf.erb'
   mode 0644
   variables(
-      :config => node['mongodb3']['config']['mongod']
+      :config => node.default['mongodb3']['config']['mongod']
   )
   helpers Mongodb3Helper
 end
@@ -72,5 +74,5 @@ service 'mongod' do
   supports :start => true, :stop => true, :restart => true, :status => true
   action :enable
   subscribes :restart, "template[#{node['mongodb3']['mongod']['config_file']}]", :delayed
-  subscribes :restart, "template[#{node['mongodb3']['config']['mongod']['security']['keyFile']}", :delayed
+  subscribes :restart, "template[#{node['mongodb3']['config']['mongod']['security']['keyFile']}]", :delayed
 end

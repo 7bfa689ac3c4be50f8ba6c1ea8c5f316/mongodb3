@@ -24,8 +24,10 @@ install_package = %w(mongodb-org-shell mongodb-org-mongos mongodb-org-tools)
 
 # Setup package version to install
 case node['platform_family']
-  when 'rhel', 'fedora'
+  when ('rhel' || 'fedora') && node['platform'] != 'amazon'
     package_version = "#{node['mongodb3']['version']}-1.el#{node.platform_version.to_i}" # ~FC019
+  when 'rhel' && node['platform'] == 'amazon'
+    package_version = "#{node['mongodb3']['version']}-1.amzn1" # MiK # FIX for amazon
   when 'debian'
     package_version = node['mongodb3']['version']
 end
@@ -49,7 +51,7 @@ template node['mongodb3']['mongos']['config_file'] do
   owner node['mongodb3']['user']
   mode 0644
   variables(
-      :config => node['mongodb3']['config']['mongos']
+      :config => node.default['mongodb3']['config']['mongos']
   )
   helpers Mongodb3Helper
 end
