@@ -18,11 +18,17 @@
 #
 
 # Add the MongoDB 3.0 Package repository
+Chef::Log.info "PLATFORM identified as ""#{node['platform']}"" and family ""#{node['platform_family']}"""
+
 case node['platform_family']
   when 'rhel', 'fedora'
     yum_repository 'mongodb-org-3.0' do
       description 'MongoDB Repository'
-      baseurl "https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/3.0/#{node['kernel']['machine'] =~ /x86_64/ ? 'x86_64' : 'i686'}"
+      if node['platform'] == 'amazon'
+        baseurl "http://repo.mongodb.org/yum/amazon/2013.03/mongodb-org/3.0/#{node['kernel']['machine']  =~ /x86_64/ ? 'x86_64' : 'i686'}"
+      else
+        baseurl "https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/3.0/#{node['kernel']['machine'] =~ /x86_64/ ? 'x86_64' : 'i686'}"
+      end
       action :create
       gpgcheck false
       enabled true
