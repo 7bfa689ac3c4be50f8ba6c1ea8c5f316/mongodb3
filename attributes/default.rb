@@ -17,8 +17,8 @@
 # limitations under the License.
 #
 
-# MongoDB version to install
-default['mongodb3']['version'] = '3.0.4'
+# MongoDB default version to install
+default['mongodb3']['version'] = '3.0.7'
 
 # Default attribute for MongoDB installation
 case node['platform_family']
